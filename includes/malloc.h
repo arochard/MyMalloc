@@ -16,15 +16,16 @@
 #define SMALL_ZONE	((SMALL_MAX*128) - ((SMALL_MAX*128) % PAGE_SIZE))
 
 #define LARGE_MIN	1025
-#define LARGE_ZONE(x)(x + (PAGE_SIZE - (x % PAGE_SIZE)))
+
+#define PAGE_SIZE_MUL(x)(x + (PAGE_SIZE - (x % PAGE_SIZE)))
 
 /*************************/
 
 /*** Macro test type list ***/
 
-#define TINY(x) (((x <= TINY_MAX) && (x > TINY_MIN)) ? (true) : (false))
-#define SMALL(x) (((x <= SMALL_MAX) && (x > SMALL_MIN)) ? (true) : (false))
-#define LARGE(x) ((x > LARGE_MIN) ? (true) : (false))
+#define TINY(x) (((x <= TINY_MAX) && (x > TINY_MIN)) ? (1) : (0))
+#define SMALL(x) (((x <= SMALL_MAX) && (x > SMALL_MIN)) ? (1) : (0))
+#define LARGE(x) ((x > LARGE_MIN) ? (1) : (0))
 
 
 
@@ -42,7 +43,9 @@
 #define USED		0
 
 //Array of pointers on the lists (GLOBAL)
-void	*baseList[] = {NULL, NULL, NULL};
+extern void			*baseList[];
+
+typedef struct s_zone 		t_zone;
 
 typedef struct 			s_block
 {
@@ -50,22 +53,31 @@ typedef struct 			s_block
 	size_t			size;
 	struct s_block		*next;
 	struct s_block		*prev;
+	t_zone 			*parent;
 }				t_block;
 
-#define HEADER_SIZE	(sizeof(struct s_block))
+#define HEADER_SIZE	(sizeof(t_block))
 
-typedef struct 			s_zone
+struct 				s_zone
 {
-	int			sizeFree;
+	int 			type;
+	size_t			sizeFree;
+	int			blocks_used;
 	t_block			*begin;
 	struct s_zone 		*next;
-	struct s_zone 		*pev;
-}				t_zone;
+	struct s_zone 		*prev;
+};
+
+#define ZONE_SIZE	(sizeof(t_zone))
 
 /******* Prototype *******/
 
+void			*ft_bzero(void *s, size_t n);
+
 int			init_heap();
 void			split_block(t_block *prev, size_t size);
+void			*extend_heap(size_t size);
+t_zone			*new_zone(t_zone *prev, int type, size_t size);
 
 void			free(void *ptr);
 void			*malloc(size_t size);

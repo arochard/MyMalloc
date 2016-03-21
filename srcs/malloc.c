@@ -1,6 +1,9 @@
 #include "../includes/malloc.h"
 
-static	int	type_alloc(size_t size)
+//Array of pointers on the lists (GLOBAL)
+void	*baseList[] = {NULL, NULL, NULL};
+
+static	int		type_alloc(size_t size)
 {
 	if (TINY(size))
 		return TINY_INDEX;
@@ -9,28 +12,67 @@ static	int	type_alloc(size_t size)
 	return LARGE_INDEX;
 }
 
-t_block		*find_block(int type, size_t size, size_t total_size)
+static t_block 		*find_block_in_zone(t_zone *zone, size_t size)
 {
-	if (baseList[type] == NULL)
+	t_block		*ret;
+
+	ret = zone->begin;
+	while (ret != NULL && (ret->size < size || ret->flag == USED))
+		ret = ret->next;
+	if (ret == NULL)
+		return (NULL);
+	if (ret->size == size)
 	{
-		extand_heap(type, size);
+		ret->flag = USED;
+		zone->sizeFree -= size;
+		zone->blocks_used++;
 	}
-	//TODO
+	else
+		split_block(ret, size);
+	return (ret);
 }
 
-void		*malloc(size_t size)
+static t_block			*find_block(int type, size_t size)
 {
-	int	type;
-	size_t	total_size;
-	t_block	*block;
+	t_block		*ret;
+	t_zone		*tmp;
+
+	ret = NULL;
+	tmp = (t_zone*)baseList[type];
+	while (tmp != NULL && ret == NULL)
+	{
+		ret = find_block_in_zone(tmp, size);
+		tmp = tmp->next;
+	}
+	if (tmp == NULL && ret == NULL)
+	{
+		if (type == LARGE_INDEX && baseList[type] == NULL)
+		{
+			tmp = new_zone(NULL, type, size);
+			baseList[type] = tmp;
+		}
+		else
+			tmp = new_zone(tmp->prev, type, size);
+		ret = find_block_in_zone(tmp, size);
+	}
+	return (ret);
+}
+
+void			*malloc(size_t size)
+{
+	int		type;
+	t_block		*block;
 
 	if (!size)
 		return (NULL);
-	total_size = size + HEADER_SIZE;
+	if (baseList[TINY_INDEX] == NULL && baseList[SMALL_INDEX] == NULL)
+	{
+		if (init_heap() == -1)
+			return (NULL);
+	}
 	type = type_alloc(size);
-	block = find_block(type, size, total_size);
+	block = find_block(type, size);
 	if (block == NULL)
 		return (NULL);
-	return ((void*)block + HEADER_SIZE)
-	// TODO
+	return ((void*)block + HEADER_SIZE);
 }
