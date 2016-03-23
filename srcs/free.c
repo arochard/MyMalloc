@@ -24,7 +24,28 @@ static void		free_zone(t_zone *zone)
 
 static void		defrag(t_block *block)
 {
-	
+	if (block->next)
+	{
+		if (block->next->flag == FREE)
+		{
+			block->size += block->next->size + HEADER_SIZE;
+			block->next = block->next->next;
+			if (block->next->next)
+				block->next->next->prev = block;
+			ft_bzero((void *)block, block->size);
+		}
+	}
+	if (block->prev)
+	{
+		if (block->prev->flag == FREE)
+		{
+			block->prev->size += block->size+HEADER_SIZE;
+			block->prev->next = block->next;
+			if (block->next)
+				block->next->prev = block->prev;
+			ft_bzero((void *)block->prev, block->prev->size);
+		}
+	}
 }
 
 void			free(void *ptr)
@@ -43,4 +64,5 @@ void			free(void *ptr)
 		free_zone(zone);
 	else
 		defrag(block);
+	ptr = NULL;
 }

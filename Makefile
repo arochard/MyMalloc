@@ -4,7 +4,7 @@ endif
 
 NAME = libft_malloc_$(HOSTTYPE).so
 
-CC = gcc -Wall -Wextra -Werror
+CC = clang -Wall -Wextra -Werror
 
 SRC_DIR = srcs
 
