@@ -1,6 +1,6 @@
 #include "../includes/malloc.h"
 
-static void		free_zone(t_zone *zone)
+/*static void		free_zone(t_zone *zone)
 {
 	size_t 		size;
 
@@ -46,7 +46,7 @@ static void		defrag(t_block *block)
 			ft_bzero((void *)block->prev, block->prev->size);
 		}
 	}
-}
+}*/
 
 void			free(void *ptr)
 {
@@ -60,9 +60,9 @@ void			free(void *ptr)
 	zone = block->parent;
 	zone->blocks_used--;
 	zone->sizeFree += block->size;
-	if (zone->blocks_used <= 0 || zone->type == LARGE_INDEX)
+	/*if (zone->blocks_used <= 0 || zone->type == LARGE_INDEX)
 		free_zone(zone);
 	else
-		defrag(block);
+		defrag(block);*/
 	ptr = NULL;
 }

@@ -1,9 +1,10 @@
 #include "../includes/malloc.h"
 
-static void		first_block(t_zone *zone, size_t size)
+void			first_block(t_zone *zone, size_t size)
 {
 	t_block		*new_b;
 
+	printf("Size first block: %zu\n", size);
 	new_b = (void *)zone + ZONE_SIZE;
 	zone->begin = new_b;
 	new_b->prev = NULL;
@@ -11,15 +12,6 @@ static void		first_block(t_zone *zone, size_t size)
 	new_b->flag = FREE;
 	new_b->size = size;
 	new_b->parent = zone;
-}
-
-static size_t		type_alloc_size(int type, size_t size)
-{
-	if (type == TINY_INDEX)
-		return TINY_ZONE;
-	else if ( type == SMALL_INDEX)
-		return SMALL_ZONE;
-	return PAGE_SIZE_MUL(size);
 }
 
 void			split_block(t_block *prev, size_t size)
@@ -42,18 +34,16 @@ void			split_block(t_block *prev, size_t size)
 t_zone			*new_zone(t_zone *prev, int type, size_t size)
 {
 	t_zone		*new_zone;
-	size_t		bsize;
 
-	bsize = type_alloc_size(type, size);
-	if ((new_zone = (t_zone*)extend_heap(bsize)) == NULL)
+	printf("prev Zone : %p\n", prev);
+	if ((new_zone = (t_zone*)extend_heap(&size, type)) == NULL)
 		return (NULL);
-	new_zone->sizeFree = bsize - ZONE_SIZE - HEADER_SIZE;
+	new_zone->sizeFree = size;
 	new_zone->prev = prev;
 	new_zone->next = NULL;
 	new_zone->blocks_used = 0;
-	new_zone->type = type;
 	if (prev != NULL)
 		prev->next = new_zone;
-	first_block(new_zone, (bsize - ZONE_SIZE - HEADER_SIZE));
+	first_block(new_zone, size);
 	return (new_zone);
 }

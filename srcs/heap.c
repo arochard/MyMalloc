@@ -1,33 +1,43 @@
 #include "../includes/malloc.h"
 
-void	*extend_heap(size_t size)
+static	int		zone_size(int type)
+{
+	if (!type)
+		return TINY_ZONE;
+	else
+		return SMALL_ZONE;
+}
+
+void	*extend_heap(size_t *size, int type)
 {
 	void		*request;
 
-	if ((size % PAGE_SIZE) != 0)
-		size = PAGE_SIZE_MUL(size);
+	if (type != LARGE_INDEX)
+		*size = zone_size(type);
 
-	request = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
+	*size += ZONE_SIZE + HEADER_SIZE;
+	if (*size % PAGE_SIZE != 0)
+		*size = PAGE_SIZE_MUL(*size);
+
+	printf("Request size:%zu\n", *size);
+	request = mmap(NULL, *size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
 	if (request == MAP_FAILED)
 		return (NULL);
 	return (request);
 }
 
-int	init_heap()
+int	init_heap(int type, size_t size)
 {
-	t_zone		*tiny;
-	t_zone		*small;
+	t_zone		*tmp;
 
-	if ((tiny = (t_zone*)extend_heap(TINY_ZONE + SMALL_ZONE)) == NULL)
+	if ((tmp = (t_zone*)extend_heap(&size, type)) == NULL)
 		return (-1);
-	small = (void *)tiny + TINY_ZONE;
-	tiny->sizeFree = TINY_ZONE - ZONE_SIZE;
-	tiny->next = NULL;
-	tiny->prev = NULL;
-	small->sizeFree = SMALL_ZONE - ZONE_SIZE;
-	small->next = NULL;
-	small->prev = NULL;
-	baseList[TINY_INDEX] = tiny;
-	baseList[SMALL_INDEX] = small;
+	tmp->sizeFree = size;
+	tmp->next = NULL;
+	tmp->prev = NULL;
+	tmp->blocks_used = 0;
+	first_block(tmp, size);
+	baseList[type] = tmp;
+	printf("Tmp Ptr: %p\n", baseList[type]);
 	return (0);
 }
