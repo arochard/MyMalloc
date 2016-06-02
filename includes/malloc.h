@@ -3,6 +3,8 @@
 
 #include <unistd.h>
 #include <sys/mman.h>
+#include <sys/time.h> 
+#include <sys/resource.h>
 
 /*************TEMP*************/
 #include <stdio.h>
@@ -64,6 +66,7 @@ typedef struct 			s_block
 
 struct 				s_zone
 {
+	int			type;
 	size_t			sizeFree;
 	int			blocks_used;
 	t_block			*begin;
@@ -76,16 +79,23 @@ struct 				s_zone
 /******* Prototype *******/
 
 void			*ft_bzero(void *s, size_t n);
+void			ft_putchar(char c);
+void			ft_putstr(char const *s);
+void			ft_puthexa(size_t dec);
+void			ft_putnbr(int nb);
 
 int			init_heap(int type, size_t size);
 void			split_block(t_block *prev, size_t size);
 void			*extend_heap(size_t *size, int type);
 t_zone			*new_zone(t_zone *prev, int type, size_t size);
-void			first_block(t_zone *zone, size_t size);
+void			first_block(t_zone *zone);
 
 void			free(void *ptr);
 void			*malloc(size_t size);
 void			*realloc(void *ptr, size_t size);
+
+void			show_alloc_mem();
+size_t			limit_alloc(size_t size);
 
 /************************/
 

@@ -17,19 +17,19 @@ static t_block 		*find_block_in_zone(t_zone *zone, size_t size)
 	t_block		*ret;
 
 	ret = zone->begin;
-	printf("OK1 ret : %p\n", ret);
+	//printf("OK1 ret : %p\n", ret);
 	while (ret != NULL && (ret->size < size || ret->flag == USED))
 		ret = ret->next;
-	printf("OK2 ret : %p\n", ret);
+	//printf("OK2 ret : %p\n", ret);
 	if (ret == NULL)
 		return (NULL);
-	printf("OK3 size : %zu ret size : %zu\n", size, ret->size);
+	//printf("OK3 size : %zu ret size : %zu\n", size, ret->size);
 	if (ret->size == size)
 	{
 		ret->flag = USED;
 		zone->sizeFree -= size;
 		zone->blocks_used++;
-		printf("OK4\n");
+		//printf("OK4\n");
 	}
 	else
 		split_block(ret, size);
@@ -42,19 +42,20 @@ static t_block			*find_block(int type, size_t size)
 	t_zone		*tmp;
 	t_zone		*tmpPrev;
 
+	//printf("Type : %d Size: %zu\n", type, size);
 	ret = NULL;
 	if (baseList[type] == NULL)
 		init_heap(type, size);
 	tmp = (t_zone*)baseList[type];
-	printf("OK5: tmp:%p\n", baseList[type]);
+	//printf("OK5: tmp:%p\n", baseList[type]);
 	while (tmp != NULL && ret == NULL)
 	{
-		printf("tmp next : %p\n", tmp->next);
+		//printf("tmp next : %p\n", tmp->next);
 		ret = find_block_in_zone(tmp, size);
 		tmpPrev = tmp;
 		tmp = tmp->next;
 	}
-	printf("OK6\n");
+	//printf("OK6\n");
 	if (tmp == NULL && ret == NULL)
 	{
 		ret = find_block_in_zone(new_zone(tmpPrev, type, size), size);
@@ -67,12 +68,15 @@ void			*malloc(size_t size)
 	int		type;
 	t_block		*block;
 
+	//printf("Size %lu\n", size);
 	if (!size)
 		return (NULL);
+	size = limit_alloc(size);
 	type = type_alloc(size);
 	block = find_block(type, size);
 	if (block == NULL)
 		return (NULL);
-	printf("%zu %zu %p %zu\n", sizeof(*block->parent), sizeof(block), (void*)block + HEADER_SIZE, block->size);
+	//printf("%p %p %zu\n\n\n\n", (void*)block, (void*)block + HEADER_SIZE, block->size);
+	//printf("HEADER_SIZE : %zu ZONE_SIZE : %zu\n", HEADER_SIZE, ZONE_SIZE);
 	return ((void*)block + HEADER_SIZE);
 }
