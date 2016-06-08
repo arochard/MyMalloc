@@ -5,10 +5,7 @@
 #include <sys/mman.h>
 #include <sys/time.h> 
 #include <sys/resource.h>
-
-/*************TEMP*************/
-#include <stdio.h>
-/*************FIN TEMP *********/
+#include <pthread.h>
 
 #define PAGE_SIZE	(getpagesize())
 /***** Size of list type *****/
@@ -49,7 +46,8 @@
 #define USED		0
 
 //Array of pointers on the lists (GLOBAL)
-extern void			*baseList[];
+extern void				*baseList[];
+extern pthread_mutex_t 	mutex;
 
 typedef struct s_zone 		t_zone;
 

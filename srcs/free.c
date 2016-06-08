@@ -53,13 +53,15 @@ void			free(void *ptr)
 	t_block		*block;
 	t_zone		*zone;
 
-	printf("Ptr %p\n", ptr);
 	if (!ptr)
 		return ;
+	pthread_mutex_lock (&mutex);
 	block = (t_block *)(ptr - HEADER_SIZE);
-	printf("%p\n", block);
-	if (sizeof(*block) != HEADER_SIZE)
+	if (!block->parent)
+	{
+		pthread_mutex_unlock(&mutex);
 		return ;
+	}
 	block->flag = FREE;
 	zone = block->parent;
 	zone->blocks_used--;
@@ -69,4 +71,5 @@ void			free(void *ptr)
 	else
 		defrag(block);
 	ptr = NULL;
+	pthread_mutex_unlock(&mutex);
 }

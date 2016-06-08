@@ -44,10 +44,12 @@ static void	show_blocks(t_zone* ptr, char* str)
 
 void		show_alloc_mem()
 {
+	pthread_mutex_lock(&mutex);
 	if (baseList[TINY_INDEX])
 		show_blocks((t_zone*)baseList[TINY_INDEX], "Tiny");
 	if (baseList[SMALL_INDEX])
 		show_blocks((t_zone*)baseList[SMALL_INDEX], "Small");
 	if (baseList[LARGE_INDEX])
 		show_blocks((t_zone*)baseList[LARGE_INDEX], "Large");
+	pthread_mutex_unlock(&mutex);
 }
