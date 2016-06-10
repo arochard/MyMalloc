@@ -1,11 +1,23 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   tools.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: arochard <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2016/06/10 17:36:36 by arochard          #+#    #+#             */
+/*   Updated: 2016/06/10 17:36:39 by arochard         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/malloc.h"
 
-void		ft_putchar(char c)
+void				ft_putchar(char c)
 {
 	write(1, &c, 1);
 }
 
-void		ft_putstr(char const *s)
+void				ft_putstr(char const *s)
 {
 	while (*s != '\0')
 	{
@@ -14,10 +26,10 @@ void		ft_putstr(char const *s)
 	}
 }
 
-void			*ft_bzero(void *s, size_t n)
+void				*ft_bzero(void *s, size_t n)
 {
 	unsigned char	*str;
-	size_t		i;
+	size_t			i;
 
 	str = s;
 	i = 0;
@@ -29,9 +41,9 @@ void			*ft_bzero(void *s, size_t n)
 	return (str);
 }
 
-void			ft_puthexa(size_t dec)
+void				ft_puthexa(size_t dec)
 {
-	size_t		i;
+	size_t			i;
 
 	if (dec)
 	{
@@ -47,7 +59,7 @@ void			ft_puthexa(size_t dec)
 	return ;
 }
 
-void			ft_putnbr(int nb)
+void				ft_putnbr(int nb)
 {
 	if (nb > 2147483647)
 		return ;
